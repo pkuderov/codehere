@@ -6,9 +6,9 @@ Codehere is a tool to prepare your jupyter notebooks for seminars and homework.
 
 ```
 
-pip install git+ssh://git@github.com/Tviskaron/codehere.git
+pip install git+ssh://git@github.com/pkuderov/codehere.git
 
-pip install git+https://github.com/Tviskaron/codehere.git
+pip install git+https://github.com/pkuderov/codehere.git
 
 ```
 
