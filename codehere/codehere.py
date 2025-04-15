@@ -12,7 +12,7 @@ from typing import List, Optional
 from urllib.request import urlopen
 
 import ipykernel
-from notebook import notebookapp
+from jupyter_server import serverapp
 
 
 class TagError(Exception):
@@ -126,12 +126,14 @@ def get_outfile_name(args: Namespace) -> str:
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description="""
-                                            Jupiter notebooks and py files compiler for seminars and students homework. 
-
-                                            Replaces lines with {0} and {1} separators with 
-                                            raise NotImplementedError code inside. 
-                                         """.format(Converter().get_begin_sep(), Converter().get_end_sep()))
+    parser = argparse.ArgumentParser(
+        description="""
+            Jupiter notebooks and py files compiler for seminars and students homework. 
+    
+            Replaces lines with {0} and {1} separators with 
+            raise NotImplementedError code inside. 
+        """.format(Converter().get_begin_sep(), Converter().get_end_sep())
+    )
     parser.add_argument('file', type=str, help='path to input file')
     parser.add_argument('--outfile', type=str, help='path to output file')
     parser.add_argument('--clear', action='store_true', help='clear code cells outputs')
@@ -206,7 +208,7 @@ def notebook_path():
     connection_file = os.path.basename(ipykernel.get_connection_file())
     kernel_id = connection_file.split('-', 1)[1].split('.')[0]
 
-    for srv in notebookapp.list_running_servers():
+    for srv in serverapp.list_running_servers():
         try:
             if srv['token'] == '' and not srv['password']:  # No token and no password, ahem...
                 req = urlopen(srv['url'] + 'api/sessions')
@@ -238,13 +240,18 @@ def process(args: Optional[Namespace] = None) -> None:
     elif args.file.endswith(".ipynb"):
         process_notebook(args)
     else:
-        raise UnsupportedExtensionError("File with unrecognized extension: " + args.file + " \n" +
-                                        'Codehere supports only "*.ipynb" and "*.py" files.')
+        raise UnsupportedExtensionError(
+            f'File with unrecognized extension: {args.file} \n'
+            'Codehere supports only "*.ipynb" and "*.py" files.'
+        )
     print("Saved in: ", args.outfile)
 
 
-def convert(file: Optional[str] = None, outfile: Optional[str] = None, solution: bool = False, clear: bool = False,
-            replacement=" Your code here ") -> None:
+def convert(
+        file: Optional[str] = None, outfile: Optional[str] = None,
+        solution: bool = False, clear: bool = False,
+        replacement=" Your code here "
+) -> None:
     process(Namespace(**{
         "file": file,
         "outfile": outfile,
